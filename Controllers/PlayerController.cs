@@ -10,8 +10,8 @@ namespace WebApplication1.Controllers
     {
         private static List<Player> players = new List<Player>
         {
-            new Player { Id = 1, Name = "Agon Jakupi", Age = 21, Email = "jakupigoni123@gmail.com" },
-            new Player { Id = 2, Name = "Tose Proeski", Age = 26, Email = "tose@yahoo.com" }
+            new Player { Id = 1, Username = "Agon Jakupi", Age = 21, Email = "jakupigoni123@gmail.com" },
+            new Player { Id = 2, Username = "Tose Proeski", Age = 26, Email = "tose@yahoo.com" }
         };
 
         [HttpGet]
