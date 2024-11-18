@@ -1,6 +1,6 @@
 import './App.css';
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
+import { Routes, Route, Link, Navigate, useLocation } from 'react-router-dom'; 
 import Home from './components/Home';
 import GameScreen from './components/GameScreen';
 import Scoreboard from './components/Scoreboard';
@@ -9,8 +9,9 @@ import Login from './components/Login';
 
 function App() {
     const [message, setMessage] = useState('');
-    const [isRegistered, setIsRegistered] = useState(false);  
+    const [isRegistered, setIsRegistered] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(localStorage.getItem('isLoggedIn') === 'true');
+    const location = useLocation();
 
     useEffect(() => {
         fetch('https://localhost:7004/api/HelloWorld')
@@ -18,61 +19,60 @@ function App() {
             .then(data => setMessage(data))
             .catch(error => console.error('Error fetching data:', error));
 
-        
         const userRegistered = localStorage.getItem("userRegistered") === "true";
         const userLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-        console.log('Is Logged In:', userLoggedIn);  
-        setIsLoggedIn(userLoggedIn);  
-
+        console.log('Is Logged In:', userLoggedIn);
+        setIsLoggedIn(userLoggedIn);
 
         setIsRegistered(userRegistered);
         setIsLoggedIn(userLoggedIn);
     }, []);
 
     const handleLogout = () => {
-        localStorage.removeItem("isLoggedIn"); 
-        localStorage.removeItem("userRegistered"); 
-        setIsLoggedIn(false); 
-        setIsRegistered(false); 
+        localStorage.removeItem("isLoggedIn");
+        localStorage.removeItem("userRegistered");
+        setIsLoggedIn(false);
+        setIsRegistered(false);
     };
 
-    return (
-        <Router>
-            <nav>
-                <ul>
-                    {isLoggedIn && (
-                        <>
-                            <li>
-                                <Link to="/game">Game Screen</Link>
-                            </li>
-                            <li>
-                                <Link to="/scoreboard">Scoreboard</Link>
-                            </li>
-                        </>
-                    )}
-                    <li>
-                        <Link to="/">Home</Link>
-                    </li>
-                    {isLoggedIn ? (
-                        <li>
-                            <button className="logout-button" onClick={handleLogout}>Log Out</button>
+    const isAuthPage = location.pathname === '/register' || location.pathname === '/login';
 
-                        </li>
-                    ) : (
-                        <>
+    return (
+        
+        <>
+            
+            {!isAuthPage && (
+                <nav>
+                    <ul>
+                        {isLoggedIn && (
+                            <>
+                                <li>
+                                    <Link to="/">Home</Link>
+                                </li>
+                                <li>
+                                    <Link to="/game">Game Screen</Link>
+                                </li>
+                                <li>
+                                    <Link to="/scoreboard">Scoreboard</Link>
+                                </li>
+                            </>
+                        )}
+
+                        {isLoggedIn ? (
                             <li>
-                               
+                                <button className="logout-button" onClick={handleLogout}>Log Out</button>
                             </li>
-                            <li>
-                                
-                            </li>
-                        </>
-                    )}
-                </ul>
-            </nav>
+                        ) : (
+                            <>
+                                <li></li>
+                                <li></li>
+                            </>
+                        )}
+                    </ul>
+                </nav>
+            )}
 
             <Routes>
-                
                 <Route
                     path="/"
                     element={
@@ -82,36 +82,32 @@ function App() {
                                 <Home />
                             </div>
                         ) : (
-                            <Navigate to="/register" />  
+                            <Navigate to="/register" />
                         )
                     }
                 />
 
-                
                 <Route
                     path="/game"
                     element={isLoggedIn ? <GameScreen /> : <Navigate to="/register" />}
                 />
 
-                
                 <Route
                     path="/scoreboard"
                     element={isLoggedIn ? <Scoreboard /> : <Navigate to="/register" />}
                 />
 
-                
                 <Route
                     path="/register"
                     element={isRegistered ? <Navigate to="/login" /> : <Register />}
                 />
 
-                
                 <Route
                     path="/login"
-                    element={isLoggedIn ? <Navigate to="/" /> : <Login setIsLoggedIn={setIsLoggedIn} />}  
+                    element={isLoggedIn ? <Navigate to="/" /> : <Login setIsLoggedIn={setIsLoggedIn} />}
                 />
             </Routes>
-        </Router>
+        </>
     );
 }
 

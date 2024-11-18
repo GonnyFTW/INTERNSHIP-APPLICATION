@@ -107,26 +107,39 @@ a {
         text-decoration: underline;
     }
 
-/* Responsive Design */
-@media (max-width: 600px) {
-    form {
-        padding: 20px;
-        margin: 10px;
-        width: 90%;
-    }
 
-    .logout-button {
-        background-color: #ff4d4d; 
-        color: white; 
-        font-size: 16px; 
-        padding: 10px 20px; 
-        border: none; 
-        border-radius: 5px; 
-        cursor: pointer; 
-        transition: background-color 0.3s ease; 
-    }
 
-        .logout-button:hover {
-            background-color: #e60000; 
-        }
+
+form {
+    padding: 20px;
+    margin: 10px;
+    width: 90%;
 }
+
+.logout-button {
+    background-color: #8bff4d75;
+    color: white;
+    font-size: 16px;
+    padding: 5px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-left: 295px;
+    margin-top:2px;
+
+}
+
+    .logout-button:hover {
+        background-color: #e60000;
+    }
+
+.color-block {
+    background-color: #f0f0f0; 
+    padding: 20px;
+    
+}
+
+
+
+
