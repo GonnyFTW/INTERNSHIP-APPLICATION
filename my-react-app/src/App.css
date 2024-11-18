@@ -1,12 +1,22 @@
 nav {
-    background-color: #282c34;
-    padding: 1rem;
+    background-color: #282c34; 
+    padding: 1rem; 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    z-index: 1000; 
+}
+
+body {
+    margin-top: 60px; 
 }
 
     nav ul {
         list-style: none;
         display: flex;
         gap: 1rem;
+        margin-bottom: 10px;
     }
 
         nav ul li {
