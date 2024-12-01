@@ -1,9 +1,9 @@
-﻿// Login.js
+﻿
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../authStyles.css';
 
-function Login({ setIsLoggedIn }) {  // Receive setIsLoggedIn as a prop
+function Login({ setIsLoggedIn }) {  
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
