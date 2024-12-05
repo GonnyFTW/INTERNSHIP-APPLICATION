@@ -6,5 +6,8 @@
         public int PlayerId { get; set; }
         public int GameId { get; set; }
         public int Points { get; set; }
+        public string Username { get; set; } 
+        public string Email { get; set; } 
+        public string ResultMessage { get; set; } 
     }
 }

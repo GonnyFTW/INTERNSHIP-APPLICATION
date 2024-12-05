@@ -31,40 +31,40 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPost("create-game")]
-public IActionResult CreateGame([FromBody] int totalRounds)
-{
-    var username = HttpContext.Session.GetString("LoggedInPlayer");
+        public IActionResult CreateGame([FromBody] int totalRounds)
+        {
+            var username = HttpContext.Session.GetString("LoggedInPlayer");
 
-    if (string.IsNullOrEmpty(username))
-    {
-        return Unauthorized("You must be logged in to start a game.");
-    }
+            if (string.IsNullOrEmpty(username))
+            {
+                return Unauthorized("You must be logged in to start a game.");
+            }
 
-    Console.WriteLine("Logged in player (session): " + username);
+            Console.WriteLine("Logged in player (session): " + username);
 
-    var player = AuthController.loggedInPlayers.Values.FirstOrDefault(p => p.Username == username);
-    if (player == null)
-    {
-        return Unauthorized("Player not found.");
-    }
+            var player = AuthController.loggedInPlayers.Values.FirstOrDefault(p => p.Username == username);
+            if (player == null)
+            {
+                return Unauthorized("Player not found.");
+            }
 
-    var newGame = new Game
-    {
-        Id = nextId++,
-        Title = "Penalty Shooter",
-        Date = DateTime.Now,
-        Players = new List<Player> { player },
-        TotalRounds = totalRounds,
-        CurrentRound = 1,
-        PlayerScore = 0,
-        AIScore = 0,
-        IsGameOver = false,
-        Rounds = new List<Round>()
-    };
+            var newGame = new Game
+            {
+                Id = nextId++,
+                Title = "Penalty Shooter",
+                Date = DateTime.Now,
+                Players = new List<Player> { player },
+                TotalRounds = totalRounds,
+                CurrentRound = 1,
+                PlayerScore = 0,
+                AIScore = 0,
+                IsGameOver = false,
+                Rounds = new List<Round>()
+            };
 
-    games.Add(newGame);
-    return CreatedAtAction(nameof(GetGame), new { id = newGame.Id }, newGame);
-}
+            games.Add(newGame);
+            return CreatedAtAction(nameof(GetGame), new { id = newGame.Id }, newGame);
+        }
 
         [HttpPost("set-rounds/{gameId}")]
         public IActionResult SetRounds(int gameId, [FromBody] int totalRounds)
@@ -182,6 +182,20 @@ public IActionResult CreateGame([FromBody] int totalRounds)
                 {
                     resultMessage = "The game ended in a draw.";
                 }
+
+                // After the game is over, create a score entry
+                var score = new Score
+                {
+                    PlayerId = player.Id,
+                    GameId = game.Id,
+                    Points = game.PlayerScore,
+                    Username = player.Username,
+                    Email = player.Email,
+                    ResultMessage = resultMessage
+                };
+
+                // Save the score (add it to the list in ScoreController)
+                ScoreController.scores.Add(score);
             }
 
             return Ok(new

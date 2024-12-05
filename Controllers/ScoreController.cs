@@ -9,7 +9,7 @@ namespace WebApplication1.Controllers
     [Route("api/[controller]")]
     public class ScoreController : ControllerBase
     {
-        private static List<Score> scores = new List<Score>();
+        public static List<Score> scores = new List<Score>();
 
         [HttpGet]
         public IActionResult GetScores()
@@ -18,7 +18,16 @@ namespace WebApplication1.Controllers
             {
                 return NotFound("No scores available.");
             }
-            return Ok(scores);
+
+            var result = scores.Select(s => new
+            {
+                s.Username,
+                s.Email,
+                s.Points,
+                s.ResultMessage
+            }).ToList();
+
+            return Ok(result);
         }
 
         [HttpGet("{gameId}/{playerId}")]
