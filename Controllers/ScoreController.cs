@@ -30,6 +30,25 @@ namespace WebApplication1.Controllers
             return Ok(result);
         }
 
+        [HttpGet("leaderboard")]
+        public IActionResult GetLeaderboard()
+        {
+            var leaderboard = scores
+                .OrderByDescending(s => s.Points)
+                .Select(s => new
+                {
+                    s.Username,
+                    s.Email,
+                    s.Points,
+                    s.ResultMessage
+                })
+                .ToList();
+
+            return Ok(leaderboard);
+        }
+
+
+
         [HttpGet("{gameId}/{playerId}")]
         public IActionResult GetScore(int gameId, int playerId)
         {
