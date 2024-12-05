@@ -183,7 +183,6 @@ namespace WebApplication1.Controllers
                     resultMessage = "The game ended in a draw.";
                 }
 
-                // After the game is over, create a score entry
                 var score = new Score
                 {
                     PlayerId = player.Id,
@@ -194,7 +193,6 @@ namespace WebApplication1.Controllers
                     ResultMessage = resultMessage
                 };
 
-                // Save the score (add it to the list in ScoreController)
                 ScoreController.scores.Add(score);
             }
 
