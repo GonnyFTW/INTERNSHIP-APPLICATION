@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Models;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace WebApplication1.Controllers
 {
@@ -8,34 +9,39 @@ namespace WebApplication1.Controllers
     [Route("api/[controller]")]
     public class ScoreController : ControllerBase
     {
-        private static List<Score> scores = new List<Score>
-        {
-            new Score { Id = 1, PlayerId = 1, GameId = 1, Points = 500 }
-        };
+        private static List<Score> scores = new List<Score>();
 
         [HttpGet]
         public IActionResult GetScores()
         {
+            if (scores.Count == 0)
+            {
+                return NotFound("No scores available.");
+            }
             return Ok(scores);
         }
 
-        [HttpGet("{id}")]
-        public IActionResult GetScore(int id)
+        [HttpGet("{gameId}/{playerId}")]
+        public IActionResult GetScore(int gameId, int playerId)
         {
-            var score = scores.Find(s => s.Id == id);
+            var score = scores.FirstOrDefault(s => s.GameId == gameId && s.PlayerId == playerId);
             if (score == null)
             {
-                return NotFound();
+                return NotFound("Score not found.");
             }
-            return Ok(score);
+            return Ok(new
+            {
+                score.PlayerId,
+                score.GameId,
+                score.Points 
+            });
         }
 
         [HttpPost]
-        public IActionResult CreateScore([FromBody] Score newScore)
+        public IActionResult CreateScore([FromBody] Score score)
         {
-            newScore.Id = scores.Count + 1;
-            scores.Add(newScore);
-            return CreatedAtAction(nameof(GetScore), new { id = newScore.Id }, newScore);
+            scores.Add(score);
+            return CreatedAtAction(nameof(GetScore), new { gameId = score.GameId, playerId = score.PlayerId }, score);
         }
     }
 }

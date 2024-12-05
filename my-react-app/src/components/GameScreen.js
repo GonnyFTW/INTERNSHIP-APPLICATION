@@ -8,7 +8,6 @@ function GameScreen() {
     const [rounds, setRoundsInput] = useState(5); 
     const [gameId, setGameId] = useState(null); 
 
-    // Fetch game on component mount
     useEffect(() => {
         const loadGame = async () => {
             try {

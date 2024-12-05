@@ -11,7 +11,7 @@ namespace WebApplication1.Controllers
     public class GameController : ControllerBase
     {
         private static List<Game> games = new List<Game>();
-        private static int nextId = 1;  
+        private static int nextId = 1;
 
         [HttpGet]
         public IActionResult GetGames()
@@ -31,25 +31,40 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPost("create-game")]
-        public IActionResult CreateGame([FromBody] int totalRounds)
-        {
-            var newGame = new Game
-            {
-                Id = nextId++,  
-                Title = "Penalty Shooter",
-                Date = DateTime.Now,
-                Players = new List<Player>(),
-                TotalRounds = totalRounds,
-                CurrentRound = 1,
-                PlayerScore = 0,
-                AIScore = 0,
-                IsGameOver = false,
-                Rounds = new List<Round>()
-            };
+public IActionResult CreateGame([FromBody] int totalRounds)
+{
+    var username = HttpContext.Session.GetString("LoggedInPlayer");
 
-            games.Add(newGame);  
-            return CreatedAtAction(nameof(GetGame), new { id = newGame.Id }, newGame);  
-        }
+    if (string.IsNullOrEmpty(username))
+    {
+        return Unauthorized("You must be logged in to start a game.");
+    }
+
+    Console.WriteLine("Logged in player (session): " + username);
+
+    var player = AuthController.loggedInPlayers.Values.FirstOrDefault(p => p.Username == username);
+    if (player == null)
+    {
+        return Unauthorized("Player not found.");
+    }
+
+    var newGame = new Game
+    {
+        Id = nextId++,
+        Title = "Penalty Shooter",
+        Date = DateTime.Now,
+        Players = new List<Player> { player },
+        TotalRounds = totalRounds,
+        CurrentRound = 1,
+        PlayerScore = 0,
+        AIScore = 0,
+        IsGameOver = false,
+        Rounds = new List<Round>()
+    };
+
+    games.Add(newGame);
+    return CreatedAtAction(nameof(GetGame), new { id = newGame.Id }, newGame);
+}
 
         [HttpPost("set-rounds/{gameId}")]
         public IActionResult SetRounds(int gameId, [FromBody] int totalRounds)
@@ -60,7 +75,7 @@ namespace WebApplication1.Controllers
                 return NotFound($"Game with ID {gameId} not found.");
             }
 
-            game.Rounds.Clear();  
+            game.Rounds.Clear();
             for (int i = 0; i < totalRounds; i++)
             {
                 game.Rounds.Add(new Round
@@ -72,8 +87,8 @@ namespace WebApplication1.Controllers
                 });
             }
 
-            game.TotalRounds = totalRounds;  
-            return Ok(game);  
+            game.TotalRounds = totalRounds;
+            return Ok(game);
         }
 
         [HttpPost("{id}/play-round")]
@@ -146,31 +161,39 @@ namespace WebApplication1.Controllers
                 return NotFound("Game not found.");
             }
 
+            var player = game.Players.FirstOrDefault();
+            if (player == null)
+            {
+                return Unauthorized("No player found for this game.");
+            }
+
             string resultMessage = string.Empty;
             if (game.IsGameOver)
             {
                 if (game.PlayerScore > game.AIScore)
                 {
-                    resultMessage = "You won the game!";
+                    resultMessage = $"{player.Username} won the game!";
                 }
                 else if (game.PlayerScore < game.AIScore)
                 {
-                    resultMessage = "You lost the game.";
+                    resultMessage = $"{player.Username} lost the game.";
                 }
                 else
                 {
-                    resultMessage = "The game ended in a tie.";
+                    resultMessage = "The game ended in a draw.";
                 }
             }
 
             return Ok(new
             {
-                CurrentRound = game.CurrentRound,
-                TotalRounds = game.TotalRounds,
-                PlayerScore = game.PlayerScore,
-                AIScore = game.AIScore,
-                IsGameOver = game.IsGameOver,
-                ResultMessage = resultMessage
+                game.Id,
+                game.Title,
+                game.Date,
+                game.TotalRounds,
+                game.CurrentRound,
+                game.PlayerScore,
+                game.AIScore,
+                resultMessage
             });
         }
     }

@@ -1,15 +1,24 @@
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services.AddDistributedMemoryCache(); 
+builder.Services.AddSession(options =>
+{
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddHttpsRedirection(options =>
 {
-    options.HttpsPort = 7004;  
+    options.HttpsPort = 7004;
 });
 
 builder.Services.AddCors(options =>
@@ -24,23 +33,18 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseCors("AllowAll");
-
 app.UseHttpsRedirection();
-
 app.UseStaticFiles();
-
+app.UseRouting();
 app.UseAuthorization();
 
-app.MapControllers();
+app.UseSession();  
 
+app.MapControllers();
 app.UseDefaultFiles();
 
 app.Run();

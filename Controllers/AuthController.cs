@@ -10,6 +10,8 @@ namespace WebApplication1.Controllers
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
+        public static Dictionary<string, Player> loggedInPlayers = new();
+
         private static List<Player> players = new();
 
         public class LoginRequest
@@ -32,7 +34,6 @@ namespace WebApplication1.Controllers
             }
 
             player.PasswordHash = BCrypt.Net.BCrypt.HashPassword(player.PasswordHash);
-
             player.Id = players.Count + 1;
             players.Add(player);
 
@@ -46,28 +47,22 @@ namespace WebApplication1.Controllers
 
             if (existingPlayer == null)
             {
-                return new ContentResult
-                {
-                    StatusCode = 401,
-                    Content = "Username does not exist.",
-                    ContentType = "text/plain"
-                };
+                return Unauthorized("Username does not exist.");
             }
 
             if (!BCrypt.Net.BCrypt.Verify(loginRequest.PasswordHash, existingPlayer.PasswordHash))
             {
-                return new ContentResult
-                {
-                    StatusCode = 401,
-                    Content = "Invalid password.",
-                    ContentType = "text/plain"
-                };
+                return Unauthorized("Invalid password.");
             }
 
-            var token = GenerateJwtToken(existingPlayer);
-            return Ok(new { token });
-        }
+            HttpContext.Session.SetString("LoggedInPlayer", existingPlayer.Username);
 
+            loggedInPlayers[existingPlayer.Username] = existingPlayer;
+
+            Console.WriteLine("Logged in player: " + HttpContext.Session.GetString("LoggedInPlayer"));
+
+            return Ok(new { message = "Login successful!" });
+        }
         [HttpGet("all")]
         public IActionResult GetAllPlayers()
         {
